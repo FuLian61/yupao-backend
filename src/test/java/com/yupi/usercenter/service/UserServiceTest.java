@@ -1,10 +1,14 @@
 package com.yupi.usercenter.service;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import com.yupi.usercenter.model.domain.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 
@@ -23,6 +27,13 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
+    void testDigest() throws NoSuchAlgorithmException {
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        String result = DigestUtils.md5DigestAsHex(("abcd" + "mypasswprd").getBytes());
+        System.out.println(result);
+    }
+
+    @Test
     public void testAddUser(){
         User user = new User();
         user.setUsername("dogYupi");
@@ -36,5 +47,43 @@ public class UserServiceTest {
         boolean result = userService.save(user);
         System.out.println(user.getId());
         Assertions.assertTrue(result);
+    }
+
+    @Test
+    void userRegister() {
+        String userAccount = "yupi";
+        String userPassword = "";
+        String checkPassword = "123456";
+        long result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+        userAccount =  "yu";
+        result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+        userAccount =  "yupi";
+        userPassword = "123456";
+        result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+        userAccount =  "yu pi";
+        userPassword = "12345678";
+        result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+        checkPassword = "123456789";
+        result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+        userAccount =  "dogYupi";
+        userPassword = "12345678";
+        result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+        userAccount =  "yupi";
+        result = userService.userRegister(userAccount,userPassword,checkPassword);
+        Assertions.assertEquals(-1,result);
+
+
     }
 }

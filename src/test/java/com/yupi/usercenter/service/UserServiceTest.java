@@ -1,8 +1,6 @@
 package com.yupi.usercenter.service;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 import com.yupi.usercenter.model.domain.User;
 import org.junit.jupiter.api.Assertions;
@@ -11,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 用户服务测试
@@ -76,14 +72,13 @@ public class UserServiceTest {
         Assertions.assertEquals(-1,result);
 
         userAccount =  "dogYupi";
-        userPassword = "12345678";
+        checkPassword = "12345678";
         result = userService.userRegister(userAccount,userPassword,checkPassword);
         Assertions.assertEquals(-1,result);
 
         userAccount =  "yupi";
         result = userService.userRegister(userAccount,userPassword,checkPassword);
         Assertions.assertEquals(-1,result);
-
 
     }
 }

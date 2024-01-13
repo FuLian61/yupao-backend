@@ -6,6 +6,9 @@ import com.yupi.usercenter.model.domain.User;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+import static com.yupi.usercenter.constant.UserConstant.ADMIN_ROLE;
+import static com.yupi.usercenter.constant.UserConstant.USER_LOGIN_STATE;
+
 /**
  * 用户服务
  *
@@ -51,4 +54,26 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<User> searchUsersByTags(List<String> tagNameList);
+
+    /**
+     * 更新用户信息
+     * @param user
+     * @return
+     */
+    int updateUser(User user,User loginUser);
+
+    /**
+     * 获取当前登陆用户信息
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 是否管理员
+     * @param request
+     * @return
+     */
+    boolean isAdmin(HttpServletRequest request);
+
+    boolean isAdmin(User loginUser);
 }

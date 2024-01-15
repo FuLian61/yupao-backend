@@ -2,12 +2,12 @@ spring:
   profiles:
     active: dev
   application:
-    name: user-center-backend
+    name: yupao-backend
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: menghao0624
-    url: jdbc:mysql://localhost:3306/yupi
+    url: jdbc:mysql://localhost:3306/yupao
   # session 失效时间（分钟）
   session:
     timeout: 86400
@@ -19,7 +19,7 @@ spring:
   redis:
     port: 6379
     host: localhost
-    database: 0
+    database: 1
 server:
   port: 8080
   servlet:

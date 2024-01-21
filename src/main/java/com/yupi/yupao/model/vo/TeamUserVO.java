@@ -1,28 +1,24 @@
-package com.yupi.yupao.model.dto;
+package com.yupi.yupao.model.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.yupi.yupao.common.PageRequest;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 队伍查询封装类
+ * 队伍和用户信息包装类
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class TeamQuery extends PageRequest {
+public class TeamUserVO implements Serializable {
+
+    private static final long serialVersionUID = -6336494105851095678L;
     /**
      * id
      */
     private Long id;
-
-    /**
-     * 搜索关键词（同时对队伍名称和队伍简介搜索）
-     */
-    private String searchText;
 
     /**
      * 队伍名称
@@ -40,6 +36,11 @@ public class TeamQuery extends PageRequest {
     private Integer maxNum;
 
     /**
+     * 过期时间
+     */
+    private Date expireTime;
+
+    /**
      * 用户id
      */
     private Long userId;
@@ -48,4 +49,21 @@ public class TeamQuery extends PageRequest {
      * 0 - 公开，1 - 私有，2 - 加密
      */
     private Integer status;
+
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
+     * 创建人用户信息
+     */
+    UserVO createUser;
+
 }

@@ -1,6 +1,7 @@
 package com.yupi.yupao.model.request;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -30,6 +31,7 @@ public class TeamAddRequest {
     /**
      * 过期时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-DD")
     private Date expireTime;
 
     /**

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 队伍
@@ -39,6 +40,7 @@ public class Team implements Serializable {
     /**
      * 过期时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-DD")
     private Date expireTime;
 
     /**

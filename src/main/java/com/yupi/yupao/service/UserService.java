@@ -6,9 +6,6 @@ import com.yupi.yupao.model.domain.User;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-import static com.yupi.yupao.constant.UserConstant.ADMIN_ROLE;
-import static com.yupi.yupao.constant.UserConstant.USER_LOGIN_STATE;
-
 /**
  * 用户服务
  *
@@ -76,4 +73,13 @@ public interface UserService extends IService<User> {
     boolean isAdmin(HttpServletRequest request);
 
     boolean isAdmin(User loginUser);
+
+    /**
+     * 匹配用户
+     *
+     * @param num
+     * @param loginUser
+     * @return
+     */
+    List<User> matchUsers(long num, User loginUser);
 }

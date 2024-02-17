@@ -10,6 +10,7 @@ import com.yupi.yupao.exception.BusinessException;
 import com.yupi.yupao.model.domain.User;
 import com.yupi.yupao.service.UserService;
 import com.yupi.yupao.mapper.UserMapper;
+import com.yupi.yupao.utils.AlgorithUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,7 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -258,6 +256,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 仅管理员可查询
         return loginUser != null && loginUser.getUserRole() == UserConstant.ADMIN_ROLE;
     }
+
+    @Override
+    public List<User> matchUsers(long num, User loginUser) {
+        List<User> userList = this.list();
+        String tags = loginUser.getTags();
+        Gson gson = new Gson();
+        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>(){}.getType());
+        // 用户列表的下标
+        SortedMap<Integer,Long> indexDistanceMap = new TreeMap<>();
+        for (int i = 0 ; i < userList.size(); i++) {
+            User user = userList.get(i);
+            String userTags = user.getTags();
+            // 无标签
+            if (StringUtils.isBlank(userTags)){
+                continue;
+            }
+            List<String> userTagList = gson.fromJson(userTags,new TypeToken<List<String>>(){}.getType());
+            // 计算分数
+            long distince = AlgorithUtils.minDistance(tagList,userTagList);
+            indexDistanceMap.put(i,distince);
+        }
+        List<User> userVOList = new ArrayList<>();
+        int i = 0;
+        for (Map.Entry<Integer, Long> entry : indexDistanceMap.entrySet()) {
+            if (i > num) {
+                break;
+            }
+            User user = userList.get(entry.getKey());
+            System.out.println(user.getId() + ":" + entry.getKey() + ":" + entry.getValue());
+            userVOList.add(user);
+            i++;
+            }
+        return userVOList;
+//        List<Integer> maxDistanceIndexList = indexDistanceMap.keySet().stream().limit(num).collect(Collectors.toList());
+//        return maxDistanceIndexList.stream()
+//                .map(index -> getSafetyUser(userList.get(index)))
+//                .collect(Collectors.toList());
+    }
+
     /**
      * 根据标签搜索用户(sql查询版)
      *

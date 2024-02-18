@@ -11,6 +11,7 @@ import com.yupi.yupao.model.domain.User;
 import com.yupi.yupao.service.UserService;
 import com.yupi.yupao.mapper.UserMapper;
 import com.yupi.yupao.utils.AlgorithUtils;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -259,40 +260,50 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public List<User> matchUsers(long num, User loginUser) {
-        List<User> userList = this.list();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id","tags");
+        queryWrapper.isNotNull("tags");
+        List<User> userList = this.list(queryWrapper);
         String tags = loginUser.getTags();
         Gson gson = new Gson();
         List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>(){}.getType());
-        // 用户列表的下标
-        SortedMap<Integer,Long> indexDistanceMap = new TreeMap<>();
+        // 用户列表的下标 => 相似度
+        List<Pair<User,Long>> list = new ArrayList<>();
+        // 依次计算所有用户和当前用户的相似度
+//        SortedMap<Integer,Long> indexDistanceMap = new TreeMap<>();
         for (int i = 0 ; i < userList.size(); i++) {
             User user = userList.get(i);
             String userTags = user.getTags();
-            // 无标签
-            if (StringUtils.isBlank(userTags)){
+            // 无标签或者为当前用户自己
+            if (StringUtils.isBlank(userTags) || user.getId() == loginUser.getId()){
                 continue;
             }
             List<String> userTagList = gson.fromJson(userTags,new TypeToken<List<String>>(){}.getType());
             // 计算分数
             long distince = AlgorithUtils.minDistance(tagList,userTagList);
-            indexDistanceMap.put(i,distince);
+            list.add(new Pair<>(user,distince));
         }
-        List<User> userVOList = new ArrayList<>();
-        int i = 0;
-        for (Map.Entry<Integer, Long> entry : indexDistanceMap.entrySet()) {
-            if (i > num) {
-                break;
-            }
-            User user = userList.get(entry.getKey());
-            System.out.println(user.getId() + ":" + entry.getKey() + ":" + entry.getValue());
-            userVOList.add(user);
-            i++;
-            }
-        return userVOList;
-//        List<Integer> maxDistanceIndexList = indexDistanceMap.keySet().stream().limit(num).collect(Collectors.toList());
-//        return maxDistanceIndexList.stream()
-//                .map(index -> getSafetyUser(userList.get(index)))
-//                .collect(Collectors.toList());
+        // 按编辑距离由小到大排序
+        List<Pair<User,Long>> topUserPairList = list.stream()
+                .sorted((a,b) -> (int)(a.getValue() - b.getValue()))
+                .limit(num)
+                .collect(Collectors.toList());
+        // 原本顺序的userId列表
+        List<Long> userIdList = topUserPairList.stream().map(pair -> pair.getKey().getId()).collect(Collectors.toList());
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        // 1,3,2
+        // User1,User2,User3
+        userQueryWrapper.in("id",userIdList);
+        Map<Long, List<User>> userIdUserListMap = this.list(userQueryWrapper)
+                .stream()
+                .map(user -> getSafetyUser(user))
+                .collect(Collectors.groupingBy(User::getId));
+        List<User> finalUserList = new ArrayList<>();
+        for (Long userId : userIdList) {
+            finalUserList.add(userIdUserListMap.get(userId).get(0));
+        }
+        return finalUserList;
+
     }
 
     /**
